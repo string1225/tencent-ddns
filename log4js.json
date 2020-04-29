@@ -1,0 +1,21 @@
+{
+    "appenders": {
+        "file": {
+            "type": "file",
+            "filename": "logs/output.log",
+            "maxLogSize": 102400
+        },
+        "out": {
+            "type": "stdout"
+        }
+    },
+    "categories": {
+        "default": {
+            "appenders": [
+                "file",
+                "out"
+            ],
+            "level": "info"
+        }
+    }
+}

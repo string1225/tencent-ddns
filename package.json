@@ -1,0 +1,26 @@
+{
+  "name": "ip-mapping",
+  "version": "1.0.0",
+  "description": "",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node main.js",
+    "image": "docker save -o docker-image.tar ddns"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/string1225/ip-mapping.git"
+  },
+  "author": "String",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/string1225/ip-mapping/issues"
+  },
+  "homepage": "https://github.com/string1225/ip-mapping#readme",
+  "dependencies": {
+    "axios": "^0.19.2",
+    "log4js": "^6.1.2",
+    "qcloudapi-sdk": "^0.2.1"
+  }
+}
