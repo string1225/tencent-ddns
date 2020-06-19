@@ -3,11 +3,28 @@
 // const puppeteer = require('puppeteer');
 const Capi = require("qcloudapi-sdk");
 const axios = require("axios").default;
-const Config = require("./config");
 
 const log4js = require('log4js');
 log4js.configure("log4js.json");
 const logger = log4js.getLogger();
+
+var Config = {
+    SecretId: process.argv[2] || "DEFAULT_ID",
+    SecretKey: process.argv[3] || "DEFAULT_KEY",
+    Domain: process.argv[4] || "DEFAULT_DOMAIN",
+    CheckInterval: process.argv[5] || 60
+};
+
+if (Config.SecretId === "DEFAULT_ID") {
+    logger.error("Please provide securet ID!");
+    return;
+} else if (Config.SecretId === "DEFAULT_KEY") {
+    logger.error("Please provide securet key!");
+    return;
+} else if (Config.SecretId === "DEFAULT_DOMAIN") {
+    logger.error("Please provide your domain!");
+    return;
+}
 
 var offlineIP = "0.0.0.0";
 logger.info("System Start with offline IP: " + offlineIP);
@@ -92,7 +109,7 @@ var fnCheck = async () => {
                     } else {
                         logger.trace(`Current IP ${newIP} equals to online IP ${onlineIP}. No action to do.`);
                     }
-                }else{
+                } else {
                     logger.error(error);
                 }
             }
@@ -102,4 +119,4 @@ var fnCheck = async () => {
     }
 }
 
-setInterval(fnCheck, 60 * 1000);
+setInterval(fnCheck, Number(Config.CheckInterval) * 1000);
