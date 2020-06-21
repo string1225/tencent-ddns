@@ -1,6 +1,6 @@
 .git
 .vscode
-node_modules
+loggs
 npm-debug.log
 *.mta
 *.tar

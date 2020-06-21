@@ -16,6 +16,13 @@
                 "out"
             ],
             "level": "info"
+        },
+        "trace": {
+            "appenders": [
+                "file",
+                "out"
+            ],
+            "level": "trace"
         }
     }
 }

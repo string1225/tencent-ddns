@@ -1,19 +1,21 @@
 "use strict";
 
-// const puppeteer = require('puppeteer');
 const Capi = require("qcloudapi-sdk");
 const axios = require("axios").default;
-
 const log4js = require('log4js');
-log4js.configure("log4js.json");
-const logger = log4js.getLogger();
 
 var Config = {
     SecretId: process.argv[2] || "DEFAULT_ID",
     SecretKey: process.argv[3] || "DEFAULT_KEY",
     Domain: process.argv[4] || "DEFAULT_DOMAIN",
-    CheckInterval: process.argv[5] || 60
+    CheckInterval: process.argv[5] || 60,
+    LogLevel: process.argv[6]
 };
+
+log4js.configure("log4js.json");
+const logger = log4js.getLogger(Config.LogLevel === "trace" ? "trace" : "default");
+
+logger.trace(JSON.stringify(Config));
 
 if (Config.SecretId === "DEFAULT_ID") {
     logger.error("Please provide securet ID!");
@@ -29,24 +31,8 @@ if (Config.SecretId === "DEFAULT_ID") {
 var offlineIP = "0.0.0.0";
 logger.info("System Start with offline IP: " + offlineIP);
 
-var fnCheck = async () => {
+var fnMainCheck = async () => {
     logger.trace("Start Check!");
-
-    // // Get IP Info From Router via Browser Simulate by puppeteer
-    // const browser = await puppeteer.launch();
-    // const page = await browser.newPage();
-    // await page.goto('http://192.168.1.1/login.cgi?username=telecomadmin&psd=UGMMNFn970');
-    // await page.goto('http://192.168.1.1/wanInfoGet.json');
-    // var content = await page.content();
-    // await browser.close();
-    //
-    // // Find IP Info From Response
-    // content = JSON.parse(content.replace(/<.*?>/g, ""));
-    // content = content.wanInfo.wanPppConn.find(x => {
-    //     return x.Name.indexOf("INTERNET") >= 0
-    // });
-    // var newIP = content.ExternalIPAddress
-    // logger.info("External IP from Router: " + newIP);
 
     // Get IP Info From IP.cn
     var oResponse = await axios.get("https://ip.cn");
@@ -54,7 +40,7 @@ var fnCheck = async () => {
     logger.trace("External IP from ip.cn: " + newIP);
 
     if (newIP !== offlineIP) {
-        logger.info(`Current IP ${newIP} doesn't equal to offline IP ${offlineIP}. Need remote check.`);
+        logger.trace(`Current IP ${newIP} doesn't equal to offline IP ${offlineIP}. Need remote check.`);
         offlineIP = newIP;
 
         // Prepare Capi
@@ -76,41 +62,37 @@ var fnCheck = async () => {
                 if (data && data.data && data.data.records) {
                     var currentRecord = data.data.records.find(x => { return x.name === "@"; });
                     var onlineIP = currentRecord.value;
-                    logger.debug("Online IP from Tencent: " + onlineIP);
+                    logger.trace("Online IP from Tencent: " + onlineIP);
 
                     // If IP is different
                     if (newIP !== onlineIP) {
                         logger.info(`Current IP ${newIP} doesn't equal to online IP ${onlineIP}. Routing config needs to be changed.`);
-                        data.data.records.forEach(x => {
 
-                            // Change record with old IP
-                            if (x.value === onlineIP) {
-                                logger.trace("Change record for " + x.name);
-                                oCapi.request({
-                                    Region: "gz",
-                                    Action: "RecordModify",
-                                    domain: Config.Domain,
-                                    recordId: x.id,
-                                    subDomain: x.name,
-                                    recordType: x.type,
-                                    recordLine: x.line,
-                                    value: newIP
-                                },
-                                    function (error, res) {
-                                        if (res.code === 0) {
-                                            logger.trace("IP of record for " + res.data.record.name + " is changed to " + res.data.record.value);
-                                        } else {
-                                            logger.error("Error when changing record for " + x.name + ": " + res.message)
-                                        }
-                                    }
-                                );
+                        // Change record with old IP
+                        logger.trace("Change record for " + currentRecord.name);
+                        oCapi.request({
+                            Region: "gz",
+                            Action: "RecordModify",
+                            domain: Config.Domain,
+                            recordId: currentRecord.id,
+                            subDomain: currentRecord.name,
+                            recordType: currentRecord.type,
+                            recordLine: currentRecord.line,
+                            value: newIP
+                        },
+                            function (error, res) {
+                                if (res.code === 0) {
+                                    logger.info("IP of record for " + res.data.record.name + " is changed to " + res.data.record.value);
+                                } else {
+                                    logger.error("Error when changing record for " + currentRecord.name + ": " + res.message)
+                                }
                             }
-                        });
+                        );
                     } else {
                         logger.trace(`Current IP ${newIP} equals to online IP ${onlineIP}. No action to do.`);
                     }
                 } else {
-                    logger.error(error);
+                    logger.error("Error when getting current records: " + JSON.stringify(error));
                 }
             }
         );
@@ -119,4 +101,5 @@ var fnCheck = async () => {
     }
 }
 
-setInterval(fnCheck, Number(Config.CheckInterval) * 1000);
+fnMainCheck();
+setInterval(fnMainCheck, Number(Config.CheckInterval) * 1000);

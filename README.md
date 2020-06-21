@@ -19,8 +19,9 @@ docker run -d --restart=always
     -e secureId=<Your Secure ID>
     -e secureKey=<Your Secure Key>
     -e domain=<Your Domain>
-    -e checkInterval=<Checking Interval in Seconds(optional)>
-    -v <Your Local Folder>:logs
+    -e checkInterval=<Checking Interval in Seconds (optional)>
+    -e debugLevel=<default/trace (optional)>
+    -v <Your Local Folder>:/app/logs
     tencent-ddns
 ```
 
