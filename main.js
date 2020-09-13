@@ -35,7 +35,8 @@ var fnMainCheck = async () => {
     logger.trace("Start Check!");
 
     // Get IP Info From IP.cn
-    var oResponse = await axios.get("https://ip.cn");
+    var oResponse = await axios.get("https://202020.ip138.com/");
+    console.log(JSON.stringify(oResponse.data))
     var newIP = oResponse.data.match(/((2(5[0-5]|[0-4]\d))|[0-1]?\d{1,2})(\.((2(5[0-5]|[0-4]\d))|[0-1]?\d{1,2})){3}/)[0];
     logger.trace("External IP from ip.cn: " + newIP);
 
