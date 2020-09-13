@@ -22,7 +22,8 @@ docker run -d --restart=always
     -e checkInterval=<Checking Interval in Seconds (optional)>
     -e debugLevel=<default/trace (optional)>
     -v <Your Local Folder>:/app/logs
-    tencent-ddns
+    --name tencent-ddns
+    string1225/tencent-ddns
 ```
 
 The tool will use the secure ID and key to connect to Tencent Cloud and change the record of your domain to your current IP, which comes from [IP.cn](https://ip.cn).
