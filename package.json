@@ -20,7 +20,7 @@
   "homepage": "https://github.com/string1225/ip-mapping#readme",
   "dependencies": {
     "axios": "^0.19.2",
-    "log4js": "^6.3.0",
+    "log4js": "^6.4.0",
     "qcloudapi-sdk": "^0.2.1"
   }
 }
